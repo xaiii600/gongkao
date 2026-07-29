@@ -2,7 +2,7 @@
   "name": "上岸自习室",
   "short_name": "上岸自习室",
   "description": "公考刷题备考助手，计时学习、错题记录、试卷分析、每日打卡",
-  "start_url": "/",
+  "start_url": "/gongkao/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f5f0f8",
