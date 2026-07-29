@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>公考小星球</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif; background:linear-gradient(180deg,#d4a5c9,#c8a2c8,#e8d5e8,#f8f5fa); min-height:100vh; display:flex; align-items:center; justify-content:center; color:#fff; }
+.card { background:rgba(255,255,255,.95); border-radius:24px; padding:40px 30px; width:90%; max-width:380px; text-align:center; color:#333; box-shadow:0 20px 60px rgba(0,0,0,.2); }
+.card h1 { font-size:28px; margin-bottom:8px; background:linear-gradient(135deg,#b583a7,#c8a2c8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.card .subtitle { font-size:14px; color:#888; margin-bottom:24px; }
+.features { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:24px; text-align:left; }
+.feat { background:#f8f0f8; border-radius:12px; padding:12px; font-size:13px; }
+.feat .icon { font-size:20px; }
+.feat .name { font-weight:600; margin-top:4px; color:#8b6a8b; }
+.enter-btn { display:block; width:100%; padding:16px; font-size:18px; font-weight:700; color:#fff; background:linear-gradient(135deg,#b583a7,#c8a2c8); border:none; border-radius:14px; cursor:pointer; text-decoration:none; }
+.enter-btn:active { opacity:.8; }
+.hint { font-size:12px; color:#aaa; margin-top:16px; line-height:1.6; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🌟 公考小星球</h1>
+  <p class="subtitle">粉笔宇宙，每天进步一点点 ✨</p>
+  <div class="features">
+    <div class="feat"><span class="icon">⏰</span><div class="name">考试倒计时</div><div>国考/省考/事业编</div></div>
+    <div class="feat"><span class="icon">📊</span><div class="name">八大学习模块</div><div>刷题+正确率统计</div></div>
+    <div class="feat"><span class="icon">✅</span><div class="name">每日计划</div><div>完成划横线</div></div>
+    <div class="feat"><span class="icon">📝</span><div class="name">每日复盘</div><div>题+答案+知识点</div></div>
+    <div class="feat"><span class="icon">❌</span><div class="name">错题记录</div><div>拍照/语音条</div></div>
+    <div class="feat"><span class="icon">📅</span><div class="name">打卡日历</div><div>滚轴选时长</div></div>
+    <div class="feat"><span class="icon">📋</span><div class="name">试卷分析</div><div>成绩趋势折线图</div></div>
+    <div class="feat"><span class="icon">💾</span><div class="name">数据备份</div><div>导出/导入JSON</div></div>
+  </div>
+  <a href="index.html" class="enter-btn">进 入 工 作 台</a>
+  <p class="hint">建议添加到手机主屏幕使用<br>数据保存在本地，无需联网</p>
+</div>
+</body>
+</html>

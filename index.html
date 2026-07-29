@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="上岸自习室">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#9b6bb0">
+<title>上岸自习室</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ========== 顶部深紫渐变区域 ========== -->
+  <div class="hero-section">
+    <div class="hero-header">
+      <button class="hero-back">‹</button>
+      <div class="hero-title">📚 上岸自习室</div>
+      <button class="hero-search">🔍</button>
+    </div>
+    <p class="hero-subtitle">✨ 加载中...</p>
+    <div class="hero-date-row">
+      <span class="hero-date">📅 <span id="hero-today-date"></span></span>
+      <button class="hero-set-exam" onclick="addExam()">⏰ 设置考试时间 ✏️</button>
+    </div>
+    <div id="hero-exam-cards" class="hero-exam-cards"></div>
+
+    <!-- Hero 区：学习进度环 + 迷你统计 -->
+    <div class="hero-progress-row">
+      <div class="hero-progress-ring-wrap">
+        <canvas id="hero-progress-canvas" width="144" height="144"></canvas>
+        <div class="hero-progress-center">
+          <div class="hp-hours" id="hp-hours">0h</div>
+          <div class="hp-label">今日学习</div>
+        </div>
+      </div>
+      <div class="hero-mini-stats">
+        <div class="hero-mini-stat">
+          <span class="hms-label">🔥 连续打卡</span>
+          <span class="hms-value" id="hms-streak">0 天</span>
+        </div>
+        <div class="hero-mini-stat">
+          <span class="hms-label">📊 本周累计</span>
+          <span class="hms-value" id="hms-week-hours">0h</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero 区：快捷操作 -->
+    <div class="hero-quick-actions">
+      <button class="hero-quick-btn" onclick="showQuickTimer()">
+        <span class="hq-icon">⏱️</span>开始计时
+      </button>
+      <button class="hero-quick-btn" onclick="switchTab('analysis');setTimeout(()=>addPaper(),300);">
+        <span class="hq-icon">📋</span>录入试卷
+      </button>
+      <button class="hero-quick-btn" onclick="switchTab('errors');setTimeout(()=>addErrorText(),300);">
+        <span class="hq-icon">📸</span>拍照录题
+      </button>
+    </div>
+  </div>
+
+  <!-- ========== 主内容区域 ========== -->
+  <div class="main-content">
+
+    <!-- Section 1: 学习概览 -->
+    <div class="section-group">
+      <div class="section-group-header">
+        <span class="sg-bar"></span>
+        <span class="sg-title">📊 学习概览</span>
+      </div>
+      <div class="stats-overview">
+        <div class="stat-box">
+          <div class="stat-num" id="stat-total-count">0</div>
+          <div class="stat-label">累计刷题</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="stat-accuracy">0%</div>
+          <div class="stat-label">正确率</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="stat-streak">0</div>
+          <div class="stat-label">连续打卡</div>
+        </div>
+      </div>
+      <div class="today-study-card" onclick="switchTab('checkin')" style="margin-bottom:0;">
+        <div class="today-study-left">
+          <div class="today-study-icon">⏱️</div>
+          <div>
+            <div class="today-study-title">今日学习</div>
+            <div class="today-study-sub" id="today-study-text">还没开始学习哦～点击模块开始计时</div>
+          </div>
+        </div>
+        <div class="today-study-right">
+          <span id="today-study-hours">0h</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: 八大模块 -->
+    <div class="section-group">
+      <div class="section-group-header">
+        <span class="sg-bar"></span>
+        <span class="sg-title">📚 八大学习模块</span>
+      </div>
+      <div id="subject-modules" class="subject-modules"></div>
+    </div>
+
+    <!-- Section 3: 数据洞察 -->
+    <div class="section-group">
+      <div class="section-group-header">
+        <span class="sg-bar"></span>
+        <span class="sg-title">📈 数据洞察</span>
+        <button class="sg-link" onclick="switchTab('analysis')">试卷管理 →</button>
+      </div>
+      <!-- 试卷分析总览 -->
+      <div class="paper-overview-card" onclick="switchTab('analysis')" style="margin-bottom:14px;">
+        <div class="paper-overview-header">
+          <span class="paper-overview-title">📊 套卷分析总览</span>
+          <span class="paper-overview-link">点击查看 →</span>
+        </div>
+        <div class="paper-overview-stats">
+          <div class="paper-overview-item">
+            <div class="paper-overview-num" id="paper-total-count">0</div>
+            <div class="paper-overview-label">已做套卷</div>
+          </div>
+          <div class="paper-overview-item">
+            <div class="paper-overview-num" id="paper-xingce-avg">--</div>
+            <div class="paper-overview-label">行测均分</div>
+          </div>
+          <div class="paper-overview-item">
+            <div class="paper-overview-num" id="paper-shenlun-avg">--</div>
+            <div class="paper-overview-label">申论均分</div>
+          </div>
+          <div class="paper-overview-item">
+            <div class="paper-overview-num" id="paper-zongying-avg">--</div>
+            <div class="paper-overview-label">综应均分</div>
+          </div>
+        </div>
+        <div id="paper-recent-exam" class="paper-recent-exam"></div>
+      </div>
+      <!-- 近7天做题趋势 -->
+      <div class="trend-card" style="margin-bottom:14px;">
+        <canvas id="trend-chart" width="340" height="160"></canvas>
+        <div id="trend-empty" class="trend-empty hidden">
+          <div class="trend-empty-emoji">😴</div>
+          <p>暂无做题记录，开始刷题吧～</p>
+        </div>
+      </div>
+      <!-- 专注时长分布 -->
+      <div class="focus-distribution-card">
+        <div class="focus-period-btns">
+          <button class="focus-period-btn active" data-focus="day" onclick="switchFocusPeriod('day')">日</button>
+          <button class="focus-period-btn" data-focus="week" onclick="switchFocusPeriod('week')">周</button>
+          <button class="focus-period-btn" data-focus="month" onclick="switchFocusPeriod('month')">月</button>
+        </div>
+        <div class="focus-pie-wrap">
+          <canvas id="focus-pie-chart" width="260" height="260"></canvas>
+          <div id="focus-pie-empty" class="focus-pie-empty hidden">
+            <div class="empty-emoji">😴</div>
+            <p>暂无专注记录</p>
+          </div>
+        </div>
+        <div id="focus-pie-summary" class="focus-pie-summary"></div>
+        <div id="focus-pie-legend" class="focus-pie-legend"></div>
+      </div>
+    </div>
+
+    <!-- Section 4: 复盘与错题 -->
+    <div class="section-group">
+      <div class="section-group-header">
+        <span class="sg-bar"></span>
+        <span class="sg-title">🔄 今日复盘</span>
+        <button class="sg-link" onclick="switchTab('review')">查看全部 →</button>
+      </div>
+      <div id="review-list" class="review-list"></div>
+      <div id="review-empty" class="empty-state-emoji hidden">
+        <p>今日暂无复盘记录</p>
+        <a onclick="switchTab('review')">去复盘Tab添加，温故知新 🌱</a>
+      </div>
+    </div>
+
+    <div class="section-group">
+      <div class="section-group-header">
+        <span class="sg-bar"></span>
+        <span class="sg-title">❌ 最近错题</span>
+        <button class="sg-link" onclick="switchTab('errors')">查看全部 →</button>
+      </div>
+      <div id="recent-errors" class="error-list"></div>
+    </div>
+
+    <!-- Section 5: 工具 -->
+    <div class="section-group">
+      <div class="section-group-header">
+        <span class="sg-bar"></span>
+        <span class="sg-title">📅 本月打卡</span>
+        <button class="sg-link" onclick="switchTab('checkin')">去打卡 →</button>
+      </div>
+      <div class="mini-calendar-card" style="margin-bottom:0;box-shadow:none;padding:0;">
+        <div id="mini-calendar" class="mini-calendar"></div>
+        <div class="mini-calendar-legend">
+          <span><span class="legend-dot legend-unchecked"></span>未打卡</span>
+          <span><span class="legend-dot legend-checked"></span>已打卡</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-group">
+      <div class="section-group-header">
+        <span class="sg-bar"></span>
+        <span class="sg-title">💾 数据备份</span>
+      </div>
+      <div class="backup-card" style="box-shadow:none;padding:0;">
+        <p>定期备份避免数据丢失。导出时可选择「存储到"文件"」保存到手机任意文件夹，导入时从该文件夹选取恢复。</p>
+        <div class="backup-btns">
+          <button class="backup-btn export" onclick="exportData()">📤 导出备份</button>
+          <button class="backup-btn import" onclick="importData()">📥 导入备份</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:80px;"></div>
+  </div>
+
+  <!-- ========== 底部固定导航 ========== -->
+  <nav class="bottom-nav">
+    <button class="bottom-btn active" data-tab="home" onclick="switchTab('home')">
+      <span class="bottom-icon">🏠</span>
+      <span class="bottom-label">首页</span>
+    </button>
+    <button class="bottom-btn" data-tab="review" onclick="switchTab('review')">
+      <span class="bottom-icon">🔄</span>
+      <span class="bottom-label">复盘</span>
+    </button>
+    <button class="bottom-btn" data-tab="errors" onclick="switchTab('errors')">
+      <span class="bottom-icon">❌</span>
+      <span class="bottom-label">错题</span>
+    </button>
+    <button class="bottom-btn" data-tab="checkin" onclick="switchTab('checkin')">
+      <span class="bottom-icon">📅</span>
+      <span class="bottom-label">打卡</span>
+    </button>
+    <button class="bottom-btn" data-tab="analysis" onclick="switchTab('analysis')">
+      <span class="bottom-icon">📋</span>
+      <span class="bottom-label">试卷</span>
+    </button>
+  </nav>
+
+  <!-- ========== 各功能页面 ========== -->
+
+  <!-- 每日复盘页 -->
+  <section id="tab-review" class="tab-page">
+    <div class="page-header">
+      <h2>🔄 每日复盘</h2>
+      <button class="add-btn" onclick="addReviewItem()">+ 添加复盘</button>
+    </div>
+
+    <!-- 筛选条 -->
+    <div class="review-filter-bar">
+      <button class="review-filter-btn active" data-period="week" onclick="switchReviewPeriod('week')">本周</button>
+      <button class="review-filter-btn" data-period="month" onclick="switchReviewPeriod('month')">本月</button>
+      <button class="review-filter-btn" data-period="all" onclick="switchReviewPeriod('all')">全部</button>
+      <div style="flex:1;"></div>
+      <input id="review-search" class="review-search-input" type="text" placeholder="🔍 搜索复盘..." oninput="renderReviewFullList()">
+    </div>
+
+    <!-- 空状态 -->
+    <div id="review-empty-state" class="review-empty-state">
+      <div class="review-empty-icon">📝</div>
+      <div class="review-empty-title">暂无复盘记录</div>
+      <div class="review-empty-desc">每日总结刷题问题，补齐薄弱知识短板</div>
+      <div class="review-empty-btns">
+        <button class="review-empty-btn primary" onclick="addReviewItem()">新建复盘</button>
+        <button class="review-empty-btn outline" onclick="importErrorsToReview()">从错题批量导入</button>
+      </div>
+      <div class="review-empty-tip">💡 公考复盘参考框架：刷题数据 → 错题归纳 → 薄弱模块 → 次日计划</div>
+    </div>
+
+    <!-- 复盘列表（按日期分组） -->
+    <div id="review-full-list" class="review-list"></div>
+  </section>
+
+  <!-- 错题导入复盘弹窗 -->
+  <div id="error-import-modal" class="modal hidden">
+    <div class="modal-content" style="max-width:440px;max-height:85vh;overflow-y:auto;">
+      <h3>📥 从错题导入复盘</h3>
+      <p style="font-size:13px;color:#888;margin-bottom:12px;">勾选要导入的错题，将自动填充到复盘内容中</p>
+      <div id="error-import-list" style="max-height:300px;overflow-y:auto;margin-bottom:12px;"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeErrorImportModal()">取消</button>
+        <button class="btn-confirm" onclick="confirmImportErrors()">导入选中错题</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 错题记录页 -->
+  <section id="tab-errors" class="tab-page">
+    <div class="page-header">
+      <h2>❌ 错题记录</h2>
+    </div>
+    <!-- 顶部操作栏 -->
+    <div class="error-toolbar">
+      <button class="error-tool-btn" onclick="capturePhoto()">
+        <span class="error-tool-icon">📷</span>
+        <span class="error-tool-text">拍照录题</span>
+      </button>
+      <button class="error-tool-btn" onclick="addErrorText()">
+        <span class="error-tool-icon">✍️</span>
+        <span class="error-tool-text">手动录入</span>
+      </button>
+      <button class="error-tool-btn" onclick="startVoiceInput('text')">
+        <span class="error-tool-icon">🎙️</span>
+        <span class="error-tool-text">语音录入</span>
+      </button>
+      <button class="error-tool-btn" onclick="addErrorReason()">
+        <span class="error-tool-icon">📝</span>
+        <span class="error-tool-text">记录错因</span>
+      </button>
+    </div>
+
+    <!-- 空状态 -->
+    <div id="error-empty-state" class="error-empty-state">
+      <div class="error-empty-icon">📭</div>
+      <div class="error-empty-title">暂无错题记录</div>
+      <div class="error-empty-desc">收集刷题错题，定向攻克薄弱模块</div>
+      <div class="error-empty-btns">
+        <button class="error-empty-btn primary" onclick="addErrorText()">去录入错题</button>
+        <button class="error-empty-btn outline" onclick="switchTab('analysis')">前往试卷刷题</button>
+      </div>
+      <div class="error-empty-tip">💡 录入错题建议标注模块、错误原因，方便后期复盘</div>
+    </div>
+
+    <!-- 筛选条 -->
+    <div id="error-filter-bar" class="error-filter-bar hidden">
+      <div class="error-filter-scroll">
+        <button class="error-filter-chip active" data-filter="all" onclick="filterErrors('all')">全部</button>
+        <button class="error-filter-chip" data-filter="xingce" onclick="filterErrors('xingce')">行测</button>
+        <button class="error-filter-chip" data-filter="shenlun" onclick="filterErrors('shenlun')">申论</button>
+      </div>
+      <div class="error-filter-scroll error-reason-filter">
+        <button class="error-filter-chip small active" data-reason="all" onclick="filterErrorReason('all')">全部原因</button>
+        <button class="error-filter-chip small" data-reason="not-reviewed" onclick="filterErrorReason('not-reviewed')">未二刷</button>
+        <button class="error-filter-chip small" data-reason="knowledge-gap" onclick="filterErrorReason('knowledge-gap')">知识点盲区</button>
+        <button class="error-filter-chip small" data-reason="exam-misread" onclick="filterErrorReason('exam-misread')">审题失误</button>
+        <button class="error-filter-chip small" data-reason="careless" onclick="filterErrorReason('careless')">粗心计算</button>
+        <button class="error-filter-chip small" data-reason="timeout" onclick="filterErrorReason('timeout')">做题超时</button>
+        <button class="error-filter-chip small" data-reason="trap" onclick="filterErrorReason('trap')">掉入陷阱</button>
+      </div>
+    </div>
+
+    <!-- 批量操作栏 -->
+    <div id="error-batch-bar" class="error-batch-bar hidden">
+      <button class="error-batch-btn" onclick="batchDeleteErrors()">🗑️ 批量删除</button>
+      <button class="error-batch-btn" onclick="batchExportErrors()">📤 批量导出</button>
+      <button class="error-batch-btn cancel" onclick="exitBatchMode()">取消</button>
+    </div>
+
+    <!-- 错题列表 -->
+    <div id="error-list" class="error-list"></div>
+  </section>
+
+  <!-- 打卡日历页 -->
+  <section id="tab-checkin" class="tab-page">
+    <div class="page-header">
+      <h2>📅 打卡</h2>
+    </div>
+
+    <!-- 月度日历 -->
+    <div id="checkin-calendar" class="checkin-calendar-new"></div>
+
+    <!-- 空状态 -->
+    <div id="checkin-empty-state" class="checkin-empty-state">
+      <div class="checkin-empty-icon">📅</div>
+      <div class="checkin-empty-title">今日还没有学习打卡</div>
+      <div class="checkin-empty-desc">记录每日备考进度，长期坚持稳步提分</div>
+      <div class="checkin-empty-btns">
+        <button class="checkin-empty-btn primary" onclick="openCheckin(todayKey())">新建今日打卡</button>
+        <button class="checkin-empty-btn outline" onclick="syncTodayToCheckin()">同步今日复盘/错题</button>
+      </div>
+    </div>
+
+    <!-- 当日数据卡片 -->
+    <div id="checkin-data-card" class="checkin-data-card hidden">
+      <div class="checkin-data-header">
+        <span id="checkin-data-date">📅 2026-07-29</span>
+        <button class="checkin-edit-btn" onclick="openCheckin(checkinSelectedDate)">✏️ 编辑</button>
+      </div>
+      <div class="checkin-data-grid">
+        <div class="checkin-data-item">
+          <div class="checkin-data-num" id="cd-hours">0h</div>
+          <div class="checkin-data-label">学习时长</div>
+        </div>
+        <div class="checkin-data-item">
+          <div class="checkin-data-num" id="cd-questions">0</div>
+          <div class="checkin-data-label">刷题总量</div>
+        </div>
+        <div class="checkin-data-item">
+          <div class="checkin-data-num" id="cd-accuracy">0%</div>
+          <div class="checkin-data-label">正确率</div>
+        </div>
+        <div class="checkin-data-item">
+          <div class="checkin-data-num" id="cd-errors">0</div>
+          <div class="checkin-data-label">新增错题</div>
+        </div>
+      </div>
+      <!-- 模块分布 -->
+      <div id="checkin-module-dist" class="checkin-module-dist"></div>
+      <!-- 笔记 -->
+      <div id="checkin-note-area" class="checkin-note-area"></div>
+      <!-- 联动入口 -->
+      <div class="checkin-links">
+        <button onclick="switchTab('errors')">📋 查看当日错题</button>
+        <button onclick="switchTab('review')">🔄 查看当日复盘</button>
+        <button onclick="switchTab('analysis')">📊 查看试卷</button>
+      </div>
+    </div>
+
+    <!-- 连续打卡统计 -->
+    <div id="checkin-stats-section" class="checkin-stats-section hidden">
+      <div class="checkin-stats-grid">
+        <div class="checkin-stats-item">
+          <div class="checkin-stats-num" id="cs-streak">0</div>
+          <div class="checkin-stats-label">连续打卡</div>
+        </div>
+        <div class="checkin-stats-item">
+          <div class="checkin-stats-num" id="cs-month-days">0</div>
+          <div class="checkin-stats-label">本月打卡天数</div>
+        </div>
+        <div class="checkin-stats-item">
+          <div class="checkin-stats-num" id="cs-month-hours">0h</div>
+          <div class="checkin-stats-label">本月总时长</div>
+        </div>
+        <div class="checkin-stats-item">
+          <div class="checkin-stats-num" id="cs-month-questions">0</div>
+          <div class="checkin-stats-label">本月刷题量</div>
+        </div>
+      </div>
+      <!-- 近7天正确率趋势 -->
+      <div class="checkin-trend">
+        <h4>📈 近7天正确率变化</h4>
+        <canvas id="checkin-accuracy-chart" width="340" height="140"></canvas>
+        <div id="checkin-accuracy-empty" class="hidden" style="text-align:center;padding:20px;color:#bbb;font-size:13px;">暂无做题数据</div>
+      </div>
+    </div>
+
+    <!-- 打卡编辑弹窗 -->
+    <div id="checkin-edit-modal" class="modal hidden">
+      <div class="modal-content checkin-edit-content">
+        <h3 id="checkin-edit-title">📅 打卡</h3>
+        <label>学习时长（小时）</label>
+        <div class="hour-picker-wrapper">
+          <input type="range" id="hour-slider" min="0" max="16" step="0.5" value="2">
+          <span id="hour-display" class="hour-display">2.0</span>
+        </div>
+        <div class="form-row">
+          <div><label>刷题数量</label><input id="ck-questions" type="number" min="0" value="0"></div>
+          <div><label>正确数量</label><input id="ck-correct" type="number" min="0" value="0"></div>
+        </div>
+        <label>练习模块（勾选）</label>
+        <div id="ck-modules" class="checkin-module-checks"></div>
+        <div class="form-row">
+          <div><label>新增错题</label><input id="ck-errors" type="number" min="0" value="0"></div>
+          <div><label>完成复盘</label><select id="ck-reviewed"><option value="no">否</option><option value="yes">是</option></select></div>
+        </div>
+        <label>学习笔记</label><textarea id="ck-note" placeholder="记录今日感受、短期目标..." rows="3"></textarea>
+        <button class="checkin-auto-btn" onclick="autoFillCheckin()" style="width:100%;margin:8px 0;padding:8px;font-size:13px;font-weight:600;background:#f0e6f5;color:#7a5a8a;border:none;border-radius:10px;cursor:pointer;">🪄 一键读取今日数据</button>
+        <div class="modal-actions">
+          <button class="btn-cancel" onclick="closeCheckinModal()">取消</button>
+          <button class="btn-confirm" onclick="confirmCheckin()">确认打卡</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 试卷分析页 -->
+  <section id="tab-analysis" class="tab-page">
+    <div class="page-header">
+      <h2>📋 试卷分析</h2>
+      <div class="header-actions">
+        <button class="add-btn" onclick="addPaper()">+ 添加试卷</button>
+      </div>
+    </div>
+
+    <div class="paper-filter">
+      <select id="paper-type-filter" onchange="renderPapers()">
+        <option value="all">全部试卷</option>
+        <option value="guokao">国考真题</option>
+        <option value="shengkao">省考真题</option>
+        <option value="moni">模拟卷</option>
+        <option value="xingce">行测</option>
+        <option value="shenlun">申论</option>
+      </select>
+      <button class="filter-btn" onclick="toggleAnalysisChart()">📈 趋势</button>
+    </div>
+
+    <!-- 空状态 -->
+    <div id="paper-empty-state" class="paper-empty-state">
+      <div class="paper-empty-icon">📋</div>
+      <div class="paper-empty-title">暂无试卷记录</div>
+      <div class="paper-empty-desc">录入套卷答题数据，跟踪模考分数，定位薄弱板块</div>
+      <div class="paper-empty-btns">
+        <button class="paper-empty-btn primary" onclick="addPaper()">录入试卷成绩</button>
+        <button class="paper-empty-btn outline" onclick="toggleAnalysisChart()">查看分数趋势</button>
+      </div>
+      <div class="paper-empty-tip">💡 套卷录入完成后，可导入错题、生成专属复盘</div>
+    </div>
+
+    <!-- 趋势图表 -->
+    <div id="analysis-chart-area" class="analysis-chart-area hidden">
+      <div class="analysis-chart-header">
+        <h3>成绩趋势</h3>
+        <button class="close-chart-btn" onclick="toggleAnalysisChart()">收起</button>
+      </div>
+      <canvas id="analysis-chart-canvas" width="350" height="280"></canvas>
+      <div id="analysis-summary" class="analysis-summary"></div>
+    </div>
+
+    <!-- 试卷列表 -->
+    <div id="paper-list" class="paper-list"></div>
+  </section>
+
+  <!-- 学习统计页 -->
+  <section id="tab-stats" class="tab-page">
+    <div class="page-header"><h2>📈 学习统计</h2></div>
+    <div class="stats-period-btns">
+      <button class="period-btn active" data-period="week">按周</button>
+      <button class="period-btn" data-period="month">按月</button>
+      <button class="period-btn" data-period="year">按年</button>
+    </div>
+    <canvas id="stats-chart" width="350" height="300"></canvas>
+    <div id="stats-summary" class="stats-summary"></div>
+  </section>
+
+  <!-- 设置页 -->
+  <section id="tab-settings" class="tab-page">
+    <div class="page-header"><h2>⚙️ 设置</h2></div>
+    <div class="settings-list">
+      <div class="settings-card" onclick="exportData()">
+        <span>📤 导出数据备份</span>
+        <span class="arrow">›</span>
+      </div>
+      <div class="settings-card" onclick="importData()">
+        <span>📥 导入数据恢复</span>
+        <span class="arrow">›</span>
+      </div>
+      <div class="settings-card" onclick="clearAllData()">
+        <span style="color:#e74c3c;">🗑️ 清空所有数据</span>
+        <span class="arrow" style="color:#e74c3c;">›</span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- 试卷详情模态框 -->
+<div id="paper-detail-modal" class="modal hidden">
+  <div class="modal-content paper-detail-content">
+    <div id="paper-detail-inner"></div>
+    <button class="btn-cancel" onclick="closePaperDetail()" style="width:100%;margin-top:12px;">关闭</button>
+  </div>
+</div>
+
+<!-- 通用模态框 -->
+<div id="modal-overlay" class="modal-overlay hidden">
+  <div id="modal-box" class="modal-box"></div>
+</div>
+
+<!-- 语音条录音浮层 -->
+<div id="voice-bar-overlay" class="voice-bar-overlay hidden">
+  <div class="voice-bar-inner">
+    <div class="voice-bar-wave" id="voice-bar-wave">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <p id="voice-bar-text">正在录音...</p>
+    <p class="voice-bar-hint">松开发送，上滑取消</p>
+  </div>
+</div>
+
+<!-- 语音录音指示器 -->
+<div id="voice-indicator" class="voice-indicator hidden">
+  <div class="voice-pulse"></div>
+  <p>录音中... 点击停止</p>
+  <button onclick="stopVoiceRecording()">停止</button>
+</div>
+
+<!-- 计时器弹窗 -->
+<div id="timer-modal" class="timer-modal hidden">
+  <div class="timer-modal-content">
+    <div class="timer-modal-header">
+      <h3 id="timer-subject-name">📖 言语理解</h3>
+      <button class="timer-close-btn" onclick="closeTimerModal()">✕</button>
+    </div>
+    <div class="timer-mode-switch">
+      <button class="timer-mode-btn active" data-mode="countup" onclick="switchTimerMode('countup')">⏫ 正计时</button>
+      <button class="timer-mode-btn" data-mode="countdown" onclick="switchTimerMode('countdown')">⏬ 倒计时</button>
+    </div>
+    <div id="timer-countdown-presets" class="timer-presets hidden">
+      <button onclick="setCountdown(15)">15分钟</button>
+      <button onclick="setCountdown(25)">25分钟</button>
+      <button onclick="setCountdown(30)">30分钟</button>
+      <button onclick="setCountdown(45)">45分钟</button>
+      <button onclick="setCountdown(60)">60分钟</button>
+      <div class="timer-custom-row">
+        <input id="timer-custom-min" type="number" min="1" max="180" value="30" placeholder="自定义">
+        <button onclick="setCountdownCustom()">设定</button>
+      </div>
+    </div>
+    <div class="timer-display" id="timer-display">00:00:00</div>
+    <div id="timer-progress-bar" class="timer-progress-bar hidden"><div id="timer-progress-fill" class="timer-progress-fill"></div></div>
+    <div class="timer-controls">
+      <button id="timer-btn-start" class="timer-btn start" onclick="startTimer()">▶ 开始</button>
+      <button id="timer-btn-pause" class="timer-btn pause hidden" onclick="pauseTimer()">⏸ 暂停</button>
+      <button id="timer-btn-resume" class="timer-btn resume hidden" onclick="resumeTimer()">▶ 继续</button>
+      <button id="timer-btn-stop" class="timer-btn stop" onclick="stopTimer()">⏹ 结束</button>
+    </div>
+    <button class="timer-minimize-btn" onclick="minimizeTimer()" id="timer-minimize-btn" style="display:none;">🔽 最小化到后台</button>
+  </div>
+</div>
+
+<!-- 计时器结束后刷题录入弹窗 -->
+<div id="timer-record-modal" class="modal hidden">
+  <div class="modal-content">
+    <h3 id="timer-record-title">📊 记录本次刷题</h3>
+    <p id="timer-record-duration" style="text-align:center;font-size:22px;font-weight:800;color:#9b6bb0;margin:8px 0;"></p>
+    <div class="form-row">
+      <div><label>做题数目</label><input id="timer-rec-count" type="number" min="0" value="0"></div>
+      <div><label>正确数目</label><input id="timer-rec-correct" type="number" min="0" value="0"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="skipTimerRecord()">跳过</button>
+      <button class="btn-confirm" onclick="confirmTimerRecord()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 错题详情弹窗 -->
+<div id="error-detail-modal" class="modal hidden">
+  <div class="modal-content error-detail-content">
+    <div id="error-detail-inner"></div>
+    <button class="btn-cancel" onclick="closeErrorDetail()" style="width:100%;margin-top:12px;">关闭</button>
+  </div>
+</div>
+
+<!-- 最小化计时器浮动球 -->
+<div id="timer-mini-float" class="timer-mini-float hidden" onclick="restoreTimerModal()">
+  <div class="timer-mini-pulse"></div>
+  <span id="timer-mini-display">00:00</span>
+  <span id="timer-mini-subject">📖</span>
+</div>
+
+<script src="app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js');
+  }
+</script>
+</body>
+</html>

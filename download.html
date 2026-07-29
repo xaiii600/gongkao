@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>下载上岸自习室</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, 'PingFang SC', sans-serif;
+  background: linear-gradient(180deg, #8e6ba3, #c9a8d8, #f5f0f8);
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.card {
+  background: #fff; border-radius: 24px; padding: 40px 28px;
+  text-align: center; max-width: 360px; width: 100%;
+  box-shadow: 0 8px 32px rgba(0,0,0,.12);
+}
+.icon { font-size: 72px; margin-bottom: 16px; }
+h1 { font-size: 22px; font-weight: 800; color: #333; margin-bottom: 8px; }
+p { font-size: 14px; color: #999; margin-bottom: 28px; line-height: 1.6; }
+.btn {
+  display: block; width: 100%; padding: 16px; font-size: 17px; font-weight: 700;
+  border: none; border-radius: 16px; cursor: pointer; margin-bottom: 12px;
+  transition: all .15s;
+}
+.btn:active { transform: scale(.97); }
+.btn-download {
+  background: linear-gradient(135deg, #9b6bb0, #b896c9);
+  color: #fff; font-size: 18px;
+}
+.btn-copy {
+  background: #f0e6f5; color: #7a5a8a; font-size: 15px;
+}
+.steps {
+  text-align: left; margin-top: 24px; padding-top: 20px;
+  border-top: 1px solid #f0e6f5;
+}
+.steps h3 { font-size: 15px; color: #7a5a8a; margin-bottom: 10px; }
+.steps ol { padding-left: 20px; font-size: 13px; color: #888; line-height: 2; }
+#msg { font-size: 13px; color: #9b6bb0; margin-top: 12px; min-height: 20px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="icon">📚</div>
+  <h1>上岸自习室</h1>
+  <p>公考刷题备考助手 · 离线可用</p>
+  <button class="btn btn-download" onclick="downloadApp()">📥 下载到手机</button>
+  <button class="btn btn-copy" onclick="copyLink()">📋 复制下载链接</button>
+  <div id="msg"></div>
+  <div class="steps">
+    <h3>📱 下载后如何使用</h3>
+    <ol>
+      <li>用「文件」App 找到下载的文件</li>
+      <li>长按文件 → 用浏览器打开</li>
+      <li>浏览器中 → 添加到主屏幕</li>
+      <li>桌面出现图标，点击即用 ✨</li>
+    </ol>
+  </div>
+</div>
+
+<script>
+async function downloadApp() {
+  var msg = document.getElementById('msg');
+  msg.textContent = '正在准备下载...';
+  try {
+    var resp = await fetch('gongkao-app.html');
+    var text = await resp.text();
+    var blob = new Blob([text], {type: 'text/html'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = '上岸自习室.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    msg.textContent = '✅ 下载已开始！请查看浏览器下载列表';
+  } catch(e) {
+    msg.textContent = '下载失败，请用下方"复制链接"按钮';
+  }
+}
+
+function copyLink() {
+  var link = location.href.replace('download.html', 'gongkao-app.html');
+  navigator.clipboard.writeText(link).then(function() {
+    document.getElementById('msg').textContent = '✅ 链接已复制，粘贴到浏览器打开';
+  }).catch(function() {
+    document.getElementById('msg').textContent = '复制失败，请手动长按下方链接';
+  });
+}
+</script>
+</body>
+</html>
